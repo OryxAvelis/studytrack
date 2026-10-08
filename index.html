@@ -15,7 +15,7 @@
       <a class="brand" href="index.html"><span class="brand-mark">S</span><span>studytrack</span></a>
       <div class="sidebar-label">Workspace</div>
       <nav class="main-nav" aria-label="Main navigation">
-        <a class="nav-link active" href="index.html"><span class="nav-icon">◫</span>Dashboard</a>
+        <a class="nav-link active" href="index.html" aria-current="page"><span class="nav-icon">◫</span>Dashboard</a>
         <a class="nav-link" href="timetable.html"><span class="nav-icon">▦</span>Timetable</a>
         <a class="nav-link" href="history.html"><span class="nav-icon">↺</span>History</a>
       </nav>
@@ -40,6 +40,27 @@
       <section class="panel chart-panel" aria-labelledby="weekly-chart-title">
         <div class="panel-heading"><div><p class="eyebrow">YOUR STUDY RHYTHM</p><h2 id="weekly-chart-title">Last 8 weeks</h2></div><span class="muted-text">Hours studied each week</span></div>
         <div class="chart-container"><canvas data-weekly-hours-chart aria-label="Bar chart of total study hours per week for the last eight weeks" role="img"></canvas></div>
+      </section>
+      <section class="dashboard-grid feature-grid">
+        <article class="panel goals-panel">
+          <div class="panel-heading"><div><p class="eyebrow">YOUR NEXT MILESTONE</p><h2>Goals & deadlines</h2></div></div>
+          <form class="goal-form" data-goal-form>
+            <div class="goal-field"><label for="goal-title">Goal</label><input id="goal-title" name="title" type="text" maxlength="100" placeholder="e.g. Finish biology chapter" required></div>
+            <div class="goal-form-row">
+              <div class="goal-field"><label for="goal-due-date">Due date</label><input id="goal-due-date" name="dueDate" type="date" required></div>
+              <div class="goal-field"><label for="goal-target-hours">Target hours <span class="optional-label">optional</span></label><input id="goal-target-hours" name="targetHours" type="number" min="0" max="10000" step="0.5" placeholder="0"></div>
+            </div>
+            <button class="button button-primary goal-submit" type="submit">Add goal</button>
+            <p class="form-message" data-goal-message aria-live="polite"></p>
+          </form>
+          <div class="goal-list" data-goal-list aria-live="polite"></div>
+        </article>
+        <article class="panel reminders-panel">
+          <div class="panel-heading"><div><p class="eyebrow">STAY ON TRACK</p><h2>Session reminders</h2></div><span class="stat-icon lilac" aria-hidden="true">◷</span></div>
+          <p class="checkin-copy">Opt in to browser notifications before sessions you mark for a reminder in your timetable.</p>
+          <button class="button button-primary" type="button" data-reminders-toggle aria-pressed="false">Enable reminders</button>
+          <p class="form-message" data-reminders-status aria-live="polite">Reminders are optional and off by default.</p>
+        </article>
       </section>
       <section class="dashboard-grid">
         <article class="panel focus-panel">

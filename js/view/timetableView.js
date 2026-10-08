@@ -20,6 +20,7 @@ export function renderTimetable(sessions, today = new Date(), user) {
       <div class="day-sessions">${daySessions.length ? daySessions.map((session) => `<article class="week-session">
         <strong>${escapeHtml(session.title)}</strong><span>${formatTime(session.startTime)} · ${session.duration} min</span>
         ${session.subject ? `<span>${escapeHtml(session.subject)}</span>` : ''}
+        ${session.reminderMinutes ? `<span>Reminder · ${session.reminderMinutes} min before</span>` : ''}
         ${session.ownerId === user.id ? `<button class="remove-session" type="button" data-delete-session="${escapeHtml(session.id)}" aria-label="Remove ${escapeHtml(session.title)}">×</button>` : ''}
       </article>`).join('') : '<div class="empty-day">Open time</div>'}</div>
     </section>`;

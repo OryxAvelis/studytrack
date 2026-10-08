@@ -9,11 +9,15 @@ import { initializeTimetable } from './timetableController.js';
 import { initializeStats } from './statsController.js';
 import { initializeHistory } from './historyController.js';
 import { initializeChart } from './chartController.js';
+import { initializeGoals } from './goalsController.js';
+import { initializeReminders } from './reminderController.js';
+import { initializeLegacyMigration } from './migrationController.js';
 
-let refreshChart = () => {};
+let refreshChart = async () => {};
+let refreshReminders = async () => {};
 
-export function requireUser() {
-  const user = getCurrentUser();
+export async function requireUser() {
+  const user = await getCurrentUser();
   if (!user) {
     window.location.replace('login.html');
     return null;
@@ -21,36 +25,73 @@ export function requireUser() {
   return user;
 }
 
-export function refreshApp(user) {
-  const sessions = getSessions(user.id);
-  const checkins = getCheckins(user.id);
+export async function refreshApp(user) {
+  const [sessions, checkins] = await Promise.all([getSessions(user.id), getCheckins(user.id)]);
   const today = new Date();
   if (document.querySelector('[data-today-sessions]')) {
-    renderDashboard({ user, sessions, checkins, stats: getStudyStats(user.id, sessions), today });
-    refreshChart();
+    renderDashboard({ user, sessions, checkins, stats: getStudyStats(checkins, sessions), today });
+    try {
+      document.querySelector('.chart-panel .chart-error')?.remove();
+      await refreshChart();
+    } catch (error) {
+      const chartPanel = document.querySelector('.chart-panel');
+      if (chartPanel) {
+        const chartError = document.createElement('p');
+        chartError.className = 'form-message error chart-error';
+        chartError.setAttribute('role', 'alert');
+        chartError.textContent = `The progress chart could not be loaded: ${error.message}`;
+        chartPanel.append(chartError);
+      }
+    }
   }
-  if (document.querySelector('[data-week-grid]')) renderTimetable(sessions, today, user);
+  if (document.querySelector('[data-week-grid]')) {
+    renderTimetable(sessions, today, user);
+    await refreshReminders(sessions);
+  }
 }
 
 function showAppError(error) {
+  document.querySelector('.app-error')?.remove();
   const message = document.createElement('p');
   message.className = 'app-error';
   message.setAttribute('role', 'alert');
   message.textContent = `StudyTrack could not load your data: ${error.message}`;
-  document.querySelector('.main-content')?.prepend(message);
+  const retry = document.createElement('button');
+  retry.className = 'button button-quiet';
+  retry.type = 'button';
+  retry.textContent = 'Try again';
+  retry.addEventListener('click', () => window.location.reload());
+  message.append(' ', retry);
+  (document.querySelector('.main-content') || document.querySelector('.auth-card'))?.prepend(message);
 }
 
-try {
-  const user = requireUser();
-  if (user) {
-    refreshChart = initializeChart({ user });
-    refreshApp(user);
+export async function initializeApp() {
+  try {
+    const user = await requireUser();
+    if (!user) return;
     initializeAuth(signOut);
-    initializeCheckin({ onCheckin: (sessionId) => { addCheckin(user.id, sessionId); refreshApp(user); } });
+    initializeLegacyMigration({ user });
+    refreshChart = initializeChart({ user });
+    try {
+      refreshReminders = await initializeReminders({ user });
+    } catch (error) {
+      const status = document.querySelector('[data-reminders-status]');
+      if (status) {
+        status.textContent = error.message;
+        status.classList.add('error');
+      }
+    }
+    await refreshApp(user);
+    initializeCheckin({ user, onCheckin: async (sessionId) => { await addCheckin(user.id, sessionId); await refreshApp(user); } });
     initializeTimetable({ user, refresh: () => refreshApp(user) });
+    await initializeGoals({ user });
     initializeStats();
-    if (document.body.dataset.page === 'history') initializeHistory({ user });
+    if (document.body.dataset.page === 'history') await initializeHistory({ user });
+    return user;
+  } catch (error) {
+    showAppError(error);
+    return null;
   }
-} catch (error) {
-  showAppError(error);
 }
+
+if (document.querySelector('.app-shell')) initializeApp();

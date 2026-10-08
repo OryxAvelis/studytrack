@@ -1,4 +1,4 @@
-import { STORAGE_KEYS, createId, readStored, writeStored } from './supabase.js';
+import { getSupabase, throwIfSupabaseError } from './supabase.js';
 import { getSessions } from './timetableData.js';
 
 export function getLocalDateKey(date = new Date()) {
@@ -8,44 +8,73 @@ export function getLocalDateKey(date = new Date()) {
   return `${year}-${month}-${day}`;
 }
 
-export function getCheckins(userId) {
-  return readStored(STORAGE_KEYS.checkins, []).filter((checkin) => checkin.ownerId === userId);
+function mapCheckin(row) {
+  return {
+    id: row.id,
+    ownerId: row.user_id,
+    sessionId: row.session_id,
+    day: row.checkin_date,
+    duration: row.session_duration_minutes,
+    status: row.status || 'full',
+    extraHours: Number(row.extra_hours) || 0,
+    checkedInAt: row.checked_in_at,
+  };
 }
 
-export function addCheckin(userId, sessionId, date = new Date()) {
-  const session = getSessions(userId).find((item) => item.id === sessionId);
+export async function getCheckins(userId) {
+  const supabase = await getSupabase();
+  const { data, error } = await supabase.from('study_checkins')
+    .select('id,user_id,session_id,checkin_date,session_duration_minutes,status,extra_hours,checked_in_at')
+    .eq('user_id', userId)
+    .order('checkin_date', { ascending: false })
+    .order('checked_in_at', { ascending: false });
+  throwIfSupabaseError(error, 'Unable to load your study history');
+  return data.map(mapCheckin);
+}
+
+export async function addCheckin(userId, sessionId, date = new Date()) {
+  const session = (await getSessions(userId)).find((item) => item.id === sessionId);
   if (!session) throw new Error('Choose a valid study session before checking in.');
-  const checkins = readStored(STORAGE_KEYS.checkins, []);
-  const day = getLocalDateKey(date);
-  if (checkins.some((checkin) => checkin.ownerId === userId && checkin.sessionId === sessionId && checkin.day === day)) {
-    throw new Error('You have already checked in for this session today.');
-  }
-  const checkin = { id: createId(), ownerId: userId, sessionId, day, duration: session.duration, status: 'full', extraHours: 0, checkedInAt: date.toISOString() };
-  checkins.push(checkin);
-  writeStored(STORAGE_KEYS.checkins, checkins);
-  return checkin;
+  const supabase = await getSupabase();
+  const { data, error } = await supabase.from('study_checkins').insert({
+    user_id: userId,
+    session_id: sessionId,
+    checkin_date: getLocalDateKey(date),
+    session_duration_minutes: session.duration,
+    status: 'full',
+    extra_hours: 0,
+  }).select('id,user_id,session_id,checkin_date,session_duration_minutes,status,extra_hours,checked_in_at').single();
+  throwIfSupabaseError(error, 'Unable to save your check-in');
+  return mapCheckin(data);
 }
 
-export function updateCheckin(userId, checkinId, changes) {
-  const checkins = readStored(STORAGE_KEYS.checkins, []);
-  const index = checkins.findIndex((checkin) => checkin.id === checkinId && checkin.ownerId === userId);
-  if (index === -1) throw new Error('This check-in could not be found.');
+export async function updateCheckin(userId, checkinId, changes) {
   if (!['full', 'half', 'absent'].includes(changes.status)) throw new Error('Choose a valid check-in status.');
   const extraHours = Number(changes.extraHours);
   if (!Number.isFinite(extraHours) || extraHours < 0 || extraHours > 24) {
     throw new Error('Extra hours must be between 0 and 24.');
   }
-  checkins[index] = { ...checkins[index], status: changes.status, extraHours };
-  writeStored(STORAGE_KEYS.checkins, checkins);
-  return checkins[index];
+  const supabase = await getSupabase();
+  const { data, error } = await supabase.from('study_checkins')
+    .update({ status: changes.status, extra_hours: extraHours })
+    .eq('id', checkinId)
+    .eq('user_id', userId)
+    .select('id,user_id,session_id,checkin_date,session_duration_minutes,status,extra_hours,checked_in_at')
+    .maybeSingle();
+  throwIfSupabaseError(error, 'Unable to update the check-in');
+  if (!data) throw new Error('This check-in could not be found.');
+  return mapCheckin(data);
 }
 
-export function deleteCheckin(userId, checkinId) {
-  const checkins = readStored(STORAGE_KEYS.checkins, []);
-  if (!checkins.some((checkin) => checkin.id === checkinId && checkin.ownerId === userId)) {
-    throw new Error('This check-in could not be found.');
-  }
-  writeStored(STORAGE_KEYS.checkins, checkins.filter((checkin) => !(checkin.id === checkinId && checkin.ownerId === userId)));
+export async function deleteCheckin(userId, checkinId) {
+  const supabase = await getSupabase();
+  const { data, error } = await supabase.from('study_checkins')
+    .delete()
+    .eq('id', checkinId)
+    .eq('user_id', userId)
+    .select('id');
+  throwIfSupabaseError(error, 'Unable to delete the check-in');
+  if (!data.length) throw new Error('This check-in could not be found.');
 }
 
 export function getCalculatedHours(checkin, session) {
@@ -59,14 +88,11 @@ export function getCheckinTotalHours(checkin, session) {
 }
 
 export function getWeeklyStudyHours(checkins, sessions, weekCount = 8, today = new Date()) {
-  if (!Number.isInteger(weekCount) || weekCount < 1) {
-    throw new Error('Week count must be a positive whole number.');
-  }
+  if (!Number.isInteger(weekCount) || weekCount < 1) throw new Error('Week count must be a positive whole number.');
   const weekStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   weekStart.setDate(weekStart.getDate() - ((weekStart.getDay() + 6) % 7));
   const firstWeek = new Date(weekStart);
   firstWeek.setDate(firstWeek.getDate() - (weekCount - 1) * 7);
-
   const weeks = Array.from({ length: weekCount }, (_, index) => {
     const start = new Date(firstWeek);
     start.setDate(start.getDate() + index * 7);
@@ -78,19 +104,16 @@ export function getWeeklyStudyHours(checkins, sessions, weekCount = 8, today = n
   });
   const weekMap = new Map(weeks.map((week) => [week.key, week]));
   const sessionMap = new Map(sessions.map((session) => [session.id, session]));
-
   checkins.forEach((checkin) => {
     const day = new Date(`${checkin.day}T12:00:00`);
     day.setDate(day.getDate() - ((day.getDay() + 6) % 7));
     const week = weekMap.get(getLocalDateKey(day));
     if (week) week.hours += getCheckinTotalHours(checkin, sessionMap.get(checkin.sessionId));
   });
-
   return weeks;
 }
 
-export function getStudyStats(userId, sessions) {
-  const checkins = getCheckins(userId);
+export function getStudyStats(checkins, sessions) {
   const sessionMap = new Map(sessions.map((session) => [session.id, session]));
   const hours = checkins.reduce((total, checkin) => total + getCheckinTotalHours(checkin, sessionMap.get(checkin.sessionId)), 0);
   const checkedDays = [...new Set(checkins.map((checkin) => checkin.day))].sort().reverse();

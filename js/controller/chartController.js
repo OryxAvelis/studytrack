@@ -3,11 +3,10 @@ import { getSessions } from '../model/timetableData.js';
 import { renderWeeklyHoursChart } from '../view/chartView.js';
 
 export function initializeChart({ user }) {
-  if (!document.querySelector('[data-weekly-hours-chart]')) return () => {};
+  if (!document.querySelector('[data-weekly-hours-chart]')) return async () => {};
 
-  return () => {
-    const checkins = getCheckins(user.id);
-    const sessions = getSessions(user.id);
+  return async () => {
+    const [checkins, sessions] = await Promise.all([getCheckins(user.id), getSessions(user.id)]);
     renderWeeklyHoursChart(getWeeklyStudyHours(checkins, sessions, 8));
   };
 }

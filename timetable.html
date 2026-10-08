@@ -15,7 +15,7 @@
       <div class="sidebar-label">Workspace</div>
       <nav class="main-nav" aria-label="Main navigation">
         <a class="nav-link" href="index.html"><span class="nav-icon">◫</span>Dashboard</a>
-        <a class="nav-link active" href="timetable.html"><span class="nav-icon">▦</span>Timetable</a>
+        <a class="nav-link active" href="timetable.html" aria-current="page"><span class="nav-icon">▦</span>Timetable</a>
         <a class="nav-link" href="history.html"><span class="nav-icon">↺</span>History</a>
       </nav>
       <div class="sidebar-bottom">
@@ -36,6 +36,7 @@
             <div class="form-field"><label for="session-day">Day</label><select id="session-day" name="day" required></select></div>
             <div class="form-field"><label for="session-start">Start time</label><input id="session-start" name="startTime" type="time" value="09:00" required></div>
             <div class="form-field"><label for="session-duration">Duration</label><select id="session-duration" name="duration" required><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60" selected>1 hour</option><option value="90">1 hour 30 minutes</option><option value="120">2 hours</option></select></div>
+            <div class="form-field"><label for="session-reminder">Reminder</label><select id="session-reminder" name="reminderMinutes"><option value="0">No reminder</option><option value="5">5 minutes before</option><option value="10" selected>10 minutes before</option><option value="15">15 minutes before</option><option value="30">30 minutes before</option></select></div>
             <div class="form-field"><label for="session-subject">Subject <span class="optional-label">optional</span></label><input id="session-subject" name="subject" type="text" maxlength="50" placeholder="e.g. Biology"></div>
           </div>
           <div class="form-actions"><p class="form-message" data-session-message aria-live="polite"></p><button class="button button-quiet" type="button" data-cancel-session>Cancel</button><button class="button button-primary" type="submit">Save session</button></div>

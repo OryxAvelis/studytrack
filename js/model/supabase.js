@@ -1,33 +1,37 @@
-const STORAGE_PREFIX = 'studytrack.v1';
+let clientPromise;
 
-export const STORAGE_KEYS = Object.freeze({
-  users: `${STORAGE_PREFIX}.users`,
-  currentUser: `${STORAGE_PREFIX}.currentUser`,
-  sessions: `${STORAGE_PREFIX}.sessions`,
-  checkins: `${STORAGE_PREFIX}.checkins`,
-});
+export async function getSupabase() {
+  if (!clientPromise) {
+    clientPromise = (async () => {
+      let config;
+      try {
+        config = await import('./supabaseConfig.js');
+      } catch (error) {
+        if (error.code === 'ERR_MODULE_NOT_FOUND' || error.message.includes('supabaseConfig.js')) {
+          throw new Error('Supabase is not configured. Copy js/model/supabaseConfig.example.js to js/model/supabaseConfig.js and enter your project URL and publishable key.');
+        }
+        throw error;
+      }
 
-export function readStored(key, fallback) {
-  try {
-    const value = localStorage.getItem(key);
-    return value === null ? fallback : JSON.parse(value);
-  } catch (error) {
-    throw new Error(`Unable to read StudyTrack browser data: ${error.message}`);
+      if (!config.SUPABASE_URL || !config.SUPABASE_PUBLISHABLE_KEY) {
+        throw new Error('Supabase is not configured. Enter your project URL and publishable key in js/model/supabaseConfig.js.');
+      }
+
+      let createClient;
+      try {
+        ({ createClient } = await import('https://esm.sh/@supabase/supabase-js@2'));
+      } catch (error) {
+        throw new Error(`Could not load the Supabase client. Check your internet connection and reload: ${error.message}`);
+      }
+
+      return createClient(config.SUPABASE_URL, config.SUPABASE_PUBLISHABLE_KEY, {
+        auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true },
+      });
+    })();
   }
+  return clientPromise;
 }
 
-export function writeStored(key, value) {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch (error) {
-    throw new Error(`Unable to save StudyTrack browser data: ${error.message}`);
-  }
-}
-
-export function createId() {
-  return globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-}
-
-export function getWeekday(date = new Date()) {
-  return (date.getDay() + 6) % 7;
+export function throwIfSupabaseError(error, operation) {
+  if (error) throw new Error(`${operation}: ${error.message}`);
 }

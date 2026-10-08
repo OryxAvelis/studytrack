@@ -59,6 +59,7 @@ h2 { margin-bottom: 0; font-size: 16px; font-weight: 700; letter-spacing: -.35px
 .welcome-subtitle { margin: 0; color: var(--muted); font-size: 12px; }
 .button { display: inline-flex; min-height: 38px; align-items: center; justify-content: center; gap: 8px; padding: 0 14px; border: 1px solid transparent; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; transition: background .15s, transform .15s; }
 .button:hover { transform: translateY(-1px); }
+.button:disabled { cursor: wait; opacity: .65; transform: none; }
 .button-primary { color: #fff; background: var(--green); }
 .button-primary:hover { background: var(--green-dark); }
 .button-quiet { color: #696b63; background: transparent; }
@@ -145,6 +146,32 @@ h2 { margin-bottom: 0; font-size: 16px; font-weight: 700; letter-spacing: -.35px
 .optional-label { color: #a2a39c; font-weight: 400; }
 .form-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 10px; }
 .form-actions .form-message { flex: 1; }
+.feature-grid { align-items: stretch; }
+.goals-panel, .reminders-panel { min-width: 0; }
+.goal-form { margin-top: 15px; }
+.goal-field { display: flex; min-width: 0; flex-direction: column; gap: 6px; }
+.goal-field label { color: #5c5f57; font-size: 10px; font-weight: 600; }
+.goal-field input { width: 100%; min-height: 36px; padding: 0 9px; border: 1px solid #e7e8e2; border-radius: 5px; outline: none; color: #42443e; background: white; font-size: 10px; }
+.goal-field input:focus { border-color: #8ca593; box-shadow: 0 0 0 3px #edf3ed; }
+.goal-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 9px; }
+.goal-submit { min-height: 32px; margin-top: 11px; }
+.goal-form .form-message { display: inline-block; margin-left: 8px; }
+.goal-list { margin-top: 11px; }
+.goal-row { display: flex; align-items: center; justify-content: space-between; gap: 9px; min-height: 49px; border-top: 1px solid #f0f0eb; }
+.goal-main { display: flex; min-width: 0; flex: 1; align-items: flex-start; gap: 9px; padding: 8px 0; cursor: pointer; }
+.goal-main input { margin: 2px 0 0; accent-color: var(--green); }
+.goal-copy { display: grid; min-width: 0; gap: 4px; }
+.goal-copy strong { overflow-wrap: anywhere; font-size: 10px; font-weight: 600; }
+.goal-copy > span { color: #96978f; font-size: 9px; }
+.goal-copy .goal-overdue { color: #a44f40; }
+.is-complete .goal-copy strong { color: #90918a; text-decoration: line-through; }
+.goal-delete { flex: 0 0 auto; padding: 3px 7px; border: 0; color: #999a93; background: transparent; font-size: 16px; cursor: pointer; }
+.goal-delete:hover { color: #a44f40; }
+.goal-empty { margin: 12px 0 0; color: #999a93; font-size: 10px; line-height: 1.6; }
+.reminders-panel .checkin-copy { margin: 14px 0; }
+.reminders-panel [data-reminders-status] { margin-top: 10px; }
+.reminders-panel [data-reminders-status].error { color: #a44f40; }
+.auth-page .app-error { width: min(100%, 360px); margin: 0 auto 15px; }
 .history-panel { margin-top: 4px; }
 .history-tools { display: flex; align-items: center; gap: 12px; }
 .export-button { min-height: 33px; font-size: 10px; }
@@ -190,6 +217,8 @@ h2 { margin-bottom: 0; font-size: 16px; font-weight: 700; letter-spacing: -.35px
 .auth-card input::placeholder { color: #b4b5ae; }
 .auth-submit { min-height: 42px; margin-top: 3px; }
 .auth-card .form-message { margin-top: 11px; }
+.forgot-password { display: block; margin: 2px 0 0 auto; padding: 4px 0; border: 0; color: var(--green); background: transparent; font-size: 10px; cursor: pointer; }
+.forgot-password:hover { color: var(--green-dark); text-decoration: underline; }
 .local-mode-note { margin: 15px 0 0; color: #a3a49c; font-size: 9px; text-align: center; }
 .back-link { margin-top: 36px; color: #82847c; font-size: 10px; }
 [hidden] { display: none !important; }

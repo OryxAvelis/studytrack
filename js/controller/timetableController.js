@@ -12,34 +12,41 @@ export function initializeTimetable({ user, refresh }) {
 
   document.querySelector('[data-open-session-form]').addEventListener('click', () => toggle(form.hidden));
   document.querySelector('[data-cancel-session]').addEventListener('click', () => toggle(false));
-  form.addEventListener('submit', (event) => {
+  form.addEventListener('submit', async (event) => {
     event.preventDefault();
     const values = new FormData(form);
+    const submit = form.querySelector('[type="submit"]');
+    submit.disabled = true;
     try {
-      addSession(user.id, {
+      await addSession(user.id, {
         title: String(values.get('title')).trim(),
         subject: String(values.get('subject')).trim(),
         day: Number(values.get('day')),
         startTime: String(values.get('startTime')),
         duration: Number(values.get('duration')),
+        reminderMinutes: values.get('reminderMinutes') ? Number(values.get('reminderMinutes')) : null,
       });
       toggle(false);
-      refresh();
+      await refresh();
     } catch (error) {
       message.textContent = error.message;
       message.classList.add('error');
+    } finally {
+      submit.disabled = false;
     }
   });
 
-  document.querySelector('[data-week-grid]').addEventListener('click', (event) => {
+  document.querySelector('[data-week-grid]').addEventListener('click', async (event) => {
     const button = event.target.closest('[data-delete-session]');
     if (!button) return;
+    button.disabled = true;
     try {
-      deleteSession(user.id, button.dataset.deleteSession);
-      refresh();
+      await deleteSession(user.id, button.dataset.deleteSession);
+      await refresh();
     } catch (error) {
       message.textContent = error.message;
       message.classList.add('error');
+      button.disabled = false;
     }
   });
 }

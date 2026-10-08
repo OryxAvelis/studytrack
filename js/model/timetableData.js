@@ -1,47 +1,56 @@
-import { STORAGE_KEYS, createId, getWeekday, readStored, writeStored } from './supabase.js';
+import { getSupabase, throwIfSupabaseError } from './supabase.js';
 
 export const WEEKDAYS = Object.freeze(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']);
 
-const SEED_SESSIONS = [
-  { id: 'seed-mon', title: 'Biology revision', subject: 'Biology', day: 0, startTime: '09:00', duration: 60 },
-  { id: 'seed-tue', title: 'Calculus practice', subject: 'Mathematics', day: 1, startTime: '10:30', duration: 90 },
-  { id: 'seed-wed', title: 'Reading & notes', subject: 'History', day: 2, startTime: '14:00', duration: 60 },
-  { id: 'seed-thu', title: 'Problem set', subject: 'Physics', day: 3, startTime: '11:00', duration: 60 },
-  { id: 'seed-fri', title: 'Weekly review', subject: 'Study skills', day: 4, startTime: '09:30', duration: 45 },
-];
-
-function getAllSessions() {
-  let sessions = readStored(STORAGE_KEYS.sessions, null);
-  if (!sessions) {
-    sessions = SEED_SESSIONS.map((session) => ({ ...session, ownerId: null }));
-    writeStored(STORAGE_KEYS.sessions, sessions);
-  }
-  return sessions;
+function mapSession(row) {
+  return {
+    id: row.id,
+    ownerId: row.user_id,
+    title: row.title,
+    subject: row.subject || '',
+    day: row.weekday,
+    startTime: String(row.start_time).slice(0, 5),
+    duration: row.duration_minutes,
+    reminderMinutes: row.reminder_minutes ?? null,
+  };
 }
 
-export function getSessions(userId) {
-  return getAllSessions().filter((session) => session.ownerId === userId || session.ownerId === null);
+export async function getSessions(userId) {
+  const supabase = await getSupabase();
+  const { data, error } = await supabase
+    .from('study_sessions')
+    .select('id,user_id,title,subject,weekday,start_time,duration_minutes,reminder_minutes')
+    .eq('user_id', userId)
+    .order('weekday')
+    .order('start_time');
+  throwIfSupabaseError(error, 'Unable to load your timetable');
+  return data.map(mapSession);
 }
 
-export function addSession(userId, session) {
-  const sessions = getAllSessions();
-  const created = { ...session, id: createId(), ownerId: userId };
-  sessions.push(created);
-  writeStored(STORAGE_KEYS.sessions, sessions);
-  return created;
+export async function addSession(userId, session) {
+  const supabase = await getSupabase();
+  const { data, error } = await supabase.from('study_sessions').insert({
+    user_id: userId,
+    title: session.title,
+    subject: session.subject || '',
+    weekday: session.day,
+    start_time: session.startTime,
+    duration_minutes: session.duration,
+    reminder_minutes: session.reminderMinutes ?? null,
+  }).select('id,user_id,title,subject,weekday,start_time,duration_minutes,reminder_minutes').single();
+  throwIfSupabaseError(error, 'Unable to save the study session');
+  return mapSession(data);
 }
 
-export function deleteSession(userId, sessionId) {
-  const sessions = getAllSessions();
-  const session = sessions.find((item) => item.id === sessionId && item.ownerId === userId);
-  if (!session) throw new Error('This session could not be found.');
-  writeStored(STORAGE_KEYS.sessions, sessions.filter((item) => item.id !== sessionId));
-}
-
-export function getTodaySessions(userId, date = new Date()) {
-  return getSessions(userId)
-    .filter((session) => session.day === getWeekday(date))
-    .sort((a, b) => a.startTime.localeCompare(b.startTime));
+export async function deleteSession(userId, sessionId) {
+  const supabase = await getSupabase();
+  const { data, error } = await supabase.from('study_sessions')
+    .delete()
+    .eq('id', sessionId)
+    .eq('user_id', userId)
+    .select('id');
+  throwIfSupabaseError(error, 'Unable to delete the study session');
+  if (!data.length) throw new Error('This session could not be found.');
 }
 
 export function formatTime(time) {

@@ -2,74 +2,79 @@ import { deleteCheckin, getCalculatedHours, getCheckins, updateCheckin } from '.
 import { getSessions } from '../model/timetableData.js';
 import { renderHistory } from '../view/historyView.js';
 
-export function initializeHistory({ user }) {
+export async function initializeHistory({ user }) {
   const table = document.querySelector('[data-history-rows]');
   if (!table) return;
   const message = document.querySelector('[data-history-message]');
   const exportButton = document.querySelector('[data-export-history]');
   let editingId = null;
 
-  const refresh = () => renderHistory({
-    user,
-    sessions: getSessions(user.id),
-    checkins: getCheckins(user.id),
-    editingId,
-  });
+  const refresh = async () => {
+    try {
+      const [sessions, checkins] = await Promise.all([getSessions(user.id), getCheckins(user.id)]);
+      renderHistory({ user, sessions, checkins, editingId });
+    } catch (error) {
+      message.textContent = error.message;
+      message.classList.add('error');
+    }
+  };
 
-  table.addEventListener('click', (event) => {
+  table.addEventListener('click', async (event) => {
     const editButton = event.target.closest('[data-edit-checkin]');
     if (editButton) {
       editingId = editButton.dataset.editCheckin;
       message.textContent = '';
       message.classList.remove('error');
-      refresh();
+      await refresh();
       return;
     }
     if (event.target.closest('[data-cancel-edit]')) {
       editingId = null;
-      refresh();
+      await refresh();
       return;
     }
     const deleteButton = event.target.closest('[data-delete-checkin]');
     if (deleteButton) {
+      deleteButton.disabled = true;
       try {
-        deleteCheckin(user.id, deleteButton.dataset.deleteCheckin);
+        await deleteCheckin(user.id, deleteButton.dataset.deleteCheckin);
         editingId = null;
         message.textContent = '';
         message.classList.remove('error');
-        refresh();
+        await refresh();
       } catch (error) {
         message.textContent = error.message;
         message.classList.add('error');
+        deleteButton.disabled = false;
       }
     }
   });
 
-  table.addEventListener('submit', (event) => {
+  table.addEventListener('submit', async (event) => {
     const form = event.target.closest('[data-history-edit]');
     if (!form) return;
     event.preventDefault();
     const values = new FormData(form);
     try {
-      updateCheckin(user.id, form.dataset.historyEdit, {
+      await updateCheckin(user.id, form.dataset.historyEdit, {
         status: values.get('status'),
         extraHours: values.get('extraHours'),
       });
       editingId = null;
       message.textContent = 'Check-in updated.';
       message.classList.remove('error');
-      refresh();
+      await refresh();
     } catch (error) {
       message.textContent = error.message;
       message.classList.add('error');
     }
   });
 
-  exportButton.addEventListener('click', () => {
+  exportButton.addEventListener('click', async () => {
     try {
-      const sessions = getSessions(user.id);
+      const [sessions, checkins] = await Promise.all([getSessions(user.id), getCheckins(user.id)]);
       const sessionMap = new Map(sessions.map((session) => [session.id, session]));
-      const checkins = getCheckins(user.id).sort((a, b) => (
+      checkins.sort((a, b) => (
         b.day.localeCompare(a.day) || b.checkedInAt.localeCompare(a.checkedInAt)
       ));
       const csvCell = (value) => `"${String(value).replace(/"/g, '""')}"`;
@@ -100,5 +105,5 @@ export function initializeHistory({ user }) {
     }
   });
 
-  refresh();
+  await refresh();
 }
