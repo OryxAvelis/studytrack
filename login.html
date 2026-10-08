@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f7f4">
+  <title>Sign in — StudyTrack</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script type="module" src="js/controller/authController.js"></script>
+</head>
+<body class="auth-page">
+  <main class="auth-layout">
+    <section class="auth-intro">
+      <a class="brand" href="index.html"><span class="brand-mark">S</span><span>studytrack</span></a>
+      <div class="auth-quote"><span class="quote-mark">“</span><h1>Make room for<br>what matters.</h1><p>A calmer way to plan your study time, check in, and notice how far you've come.</p><span class="quote-decoration">✳</span></div>
+      <div class="auth-footnote">Your next small step starts here.</div>
+    </section>
+    <section class="auth-form-wrap">
+      <div class="auth-card">
+        <p class="eyebrow">WELCOME TO YOUR STUDY SPACE</p>
+        <h2 data-auth-heading>Welcome back</h2>
+        <p class="auth-subtitle" data-auth-subtitle>Sign in to pick up where you left off.</p>
+        <div class="auth-tabs" role="tablist" aria-label="Account options">
+          <button type="button" class="auth-tab active" data-auth-mode="signin" role="tab" aria-selected="true">Sign in</button>
+          <button type="button" class="auth-tab" data-auth-mode="signup" role="tab" aria-selected="false">Create account</button>
+        </div>
+        <form data-auth-form>
+          <label for="auth-name" data-name-label hidden>Your name</label>
+          <input id="auth-name" name="name" type="text" autocomplete="name" placeholder="Your name" hidden>
+          <label for="auth-email">Email address</label>
+          <input id="auth-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+          <label for="auth-password">Password</label>
+          <input id="auth-password" name="password" type="password" autocomplete="current-password" placeholder="At least 8 characters" minlength="8" required>
+          <button class="button button-primary button-full auth-submit" type="submit" data-auth-submit>Sign in <span>→</span></button>
+          <p class="form-message" data-auth-message aria-live="polite"></p>
+        </form>
+        <p class="local-mode-note">Your account is stored only in this browser.</p>
+      </div>
+      <a class="back-link" href="index.html">← Back to your study space</a>
+    </section>
+  </main>
+</body>
+</html>
