@@ -1,5 +1,15 @@
 let clientPromise;
 
+export async function hasSupabaseConfig() {
+  try {
+    const config = await import('./supabaseConfig.js');
+    return Boolean(config.SUPABASE_URL && config.SUPABASE_PUBLISHABLE_KEY);
+  } catch (error) {
+    if (error.code === 'ERR_MODULE_NOT_FOUND' || error.message.includes('supabaseConfig.js')) return false;
+    throw error;
+  }
+}
+
 export async function getSupabase() {
   if (!clientPromise) {
     clientPromise = (async () => {

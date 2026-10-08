@@ -3,32 +3,32 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f7f7f4">
+  <meta name="theme-color" content="#f8f9fc">
   <title>History — StudyTrack</title>
   <link rel="stylesheet" href="css/style.css">
   <script type="module" src="js/controller/app.js"></script>
 </head>
 <body data-page="history">
   <div class="app-shell">
-    <aside class="sidebar">
-      <a class="brand" href="index.html"><span class="brand-mark">S</span><span>studytrack</span></a>
-      <div class="sidebar-label">Workspace</div>
+    <header class="site-header">
+      <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">▰</span><span>StudyTrack</span></a>
       <nav class="main-nav" aria-label="Main navigation">
-        <a class="nav-link" href="index.html"><span class="nav-icon">◫</span>Dashboard</a>
-        <a class="nav-link" href="timetable.html"><span class="nav-icon">▦</span>Timetable</a>
-        <a class="nav-link active" href="history.html" aria-current="page"><span class="nav-icon">↺</span>History</a>
+        <a class="nav-link" href="index.html"><span class="nav-icon" aria-hidden="true">⌂</span>Dashboard</a>
+        <a class="nav-link" href="timetable.html"><span class="nav-icon" aria-hidden="true">▦</span>Timetable</a>
+        <a class="nav-link active" href="history.html" aria-current="page"><span class="nav-icon" aria-hidden="true">▥</span>History</a>
       </nav>
-      <div class="sidebar-bottom">
-        <div class="sidebar-note"><span class="note-icon">✳</span><strong>A little progress<br>adds up.</strong><span>Show up for your future self.</span></div>
-        <div class="profile-button">
-          <span class="avatar" data-user-initials>ST</span>
-          <span class="profile-copy"><strong data-user-name>Student</strong><small data-user-email></small></span>
-          <button class="logout-button" type="button" data-logout>Log out</button>
-        </div>
+      <div class="profile-button">
+        <span class="avatar" data-user-initials>ST</span>
+        <span class="profile-copy"><strong data-user-name>Student</strong><small data-user-email></small></span>
+        <a class="account-link" data-account-link href="login.html">Sign in</a>
+        <button class="logout-button" type="button" data-logout>Log out</button>
       </div>
-    </aside>
+    </header>
     <main class="main-content">
-      <header class="topbar"><div class="breadcrumb">Workspace <span>/</span> History</div><a class="topbar-link" href="index.html">← Dashboard</a></header>
+      <aside class="guest-notice" data-guest-notice hidden>
+        <span>Your plan is saved on this device. <a href="login.html">Sign in or create an account</a> to sync it across devices.</span>
+        <button type="button" data-dismiss-guest-notice aria-label="Dismiss notice">×</button>
+      </aside>
       <section class="welcome-row timetable-welcome">
         <div><p class="eyebrow">YOUR STUDY JOURNEY</p><h1>Study history <span class="wave">↺</span></h1><p class="welcome-subtitle">Review check-ins and adjust your recorded study time.</p></div>
       </section>

@@ -15,7 +15,7 @@ export function initializeCheckin({ onCheckin }) {
       message.textContent = error.message;
       message.classList.add('error');
     } finally {
-      submit.disabled = !form.querySelector('select').value;
+      submit.disabled = !form.querySelector('select').value || form.dataset.completed === 'true';
     }
   });
 }

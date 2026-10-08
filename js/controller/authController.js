@@ -1,6 +1,16 @@
 import { getCurrentUser, sendPasswordReset, signIn, signOut, signUp, updatePassword } from '../model/auth.js';
+import { GUEST_USER_ID } from '../model/guestData.js';
 
-export function initializeAuth(onSignOut = signOut) {
+export function initializeAuth(onSignOut = signOut, user = null) {
+  const isGuest = !user || user.id === GUEST_USER_ID;
+  document.querySelectorAll('[data-account-link]').forEach((link) => { link.hidden = !isGuest; });
+  document.querySelectorAll('[data-logout]').forEach((button) => { button.hidden = isGuest; });
+  document.querySelectorAll('[data-guest-notice]').forEach((notice) => { notice.hidden = !isGuest; });
+  document.querySelectorAll('[data-dismiss-guest-notice]').forEach((button) => {
+    button.addEventListener('click', () => { button.closest('[data-guest-notice]').hidden = true; });
+  });
+
+  if (isGuest) return;
   document.querySelectorAll('[data-logout]').forEach((button) => {
     button.addEventListener('click', async () => {
       button.disabled = true;

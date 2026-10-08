@@ -1,4 +1,4 @@
-import { getSupabase, throwIfSupabaseError } from './supabase.js';
+import { getSupabase, hasSupabaseConfig, throwIfSupabaseError } from './supabase.js';
 
 function clearLegacyPasswords() {
   try {
@@ -18,6 +18,7 @@ function mapUser(user) {
 }
 
 export async function getCurrentUser() {
+  if (!await hasSupabaseConfig()) return null;
   const supabase = await getSupabase();
   const { data, error } = await supabase.auth.getSession();
   throwIfSupabaseError(error, 'Unable to check your sign-in status');

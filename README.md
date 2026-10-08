@@ -1,17 +1,17 @@
 # StudyTrack
 
-StudyTrack is a browser-based study planner with a weekly timetable, check-ins, study history, CSV export, an eight-week progress chart, goals, deadlines, and opt-in session reminders.
+StudyTrack is a free browser-based study planner with a weekly timetable, check-ins, study history, CSV export, an eight-week progress chart, goals, deadlines, and opt-in session reminders. An account is optional: guest data is stored locally in the current browser; signing in enables private Supabase sync.
 
 ## Configure Supabase
 
-The app uses Supabase Auth and Postgres for accounts and synced study data.
+Supabase is optional for guest use. Configure it to enable accounts and synced study data.
 
 1. Create a Supabase project.
 2. In the Supabase SQL Editor, run [`setup.sql`](./setup.sql). It creates the required tables, indexes, and row-level-security policies. It is safe to re-run to add schema updates.
 3. Copy `js/model/supabaseConfig.example.js` to `js/model/supabaseConfig.js`.
 4. Set `SUPABASE_URL` to the project URL and `SUPABASE_PUBLISHABLE_KEY` to the project's **publishable (anon)** key. Never put a `service_role` key in a browser app. The local config is git-ignored.
 5. In Supabase Auth settings, configure the site's URL and allow-list the app's local and deployed callback URLs for email confirmation and password recovery.
-6. Serve the project over HTTP(S), create an account, and confirm its email if confirmation is enabled in the project.
+6. Serve the project over HTTP(S). Guests can use the planner immediately; create an account and confirm its email if confirmation is enabled to use cloud sync.
 
 The publishable key is designed for browser use; row-level security is what protects user data. Do not disable the policies in `setup.sql`.
 
@@ -23,7 +23,9 @@ Serve this folder with a static web server; JavaScript modules do not work relia
 python -m http.server 8000
 ```
 
-Then open <http://localhost:8000>. Alternatively, use VS Code's Live Server extension: right-click `index.html` and choose **Open with Live Server**. Supabase configuration is required for sign-in and data operations.
+Then open <http://localhost:8000>. Alternatively, use VS Code's Live Server extension: right-click `index.html` and choose **Open with Live Server**.
+
+Guest data (timetable, check-ins, goals, and reminder preferences) stays in this browser and is not uploaded. Configure Supabase and sign in if you want account-based cloud sync. Guest data and account data remain separate.
 
 Run the dependency-free model tests with:
 
@@ -34,7 +36,9 @@ npm test
 ## Features
 
 - Supabase email/password sign-up and sign-in, email confirmation, and password recovery
+- Free guest mode with locally saved timetable, check-ins, goals, and reminder preferences; no account is required
 - Cloud-synced timetable, check-ins, goals, and reminder preferences
+- Left-to-right English timetable with Monday–Saturday weekday rows and ten hourly slots from 08:00–09:00 through 17:00–18:00
 - One-time, user-confirmed import of the previous browser demo's timetable and check-ins; demo passwords are not imported
 - Full, half, or absent check-in statuses; calculated and extra study hours
 - Study history with edit/delete and CSV export

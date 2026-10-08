@@ -1,6 +1,11 @@
 import { getSupabase, throwIfSupabaseError } from './supabase.js';
+import { GUEST_USER_ID, getGuestCollection, isGuestUser, saveGuestCollection } from './guestData.js';
 
 export async function getRemindersEnabled(userId) {
+  if (isGuestUser(userId)) {
+    return getGuestCollection('preferences')
+      .find((preference) => preference.ownerId === GUEST_USER_ID)?.remindersEnabled ?? false;
+  }
   const supabase = await getSupabase();
   const { data, error } = await supabase.from('study_preferences')
     .select('reminders_enabled')
@@ -11,6 +16,14 @@ export async function getRemindersEnabled(userId) {
 }
 
 export async function setRemindersEnabled(userId, enabled) {
+  if (isGuestUser(userId)) {
+    const preferences = getGuestCollection('preferences');
+    const existing = preferences.find((preference) => preference.ownerId === GUEST_USER_ID);
+    if (existing) existing.remindersEnabled = enabled;
+    else preferences.push({ ownerId: GUEST_USER_ID, remindersEnabled: enabled });
+    saveGuestCollection('preferences', preferences);
+    return;
+  }
   const supabase = await getSupabase();
   const { error } = await supabase.from('study_preferences').upsert({
     user_id: userId,

@@ -1,5 +1,6 @@
 import { getSupabase, throwIfSupabaseError } from './supabase.js';
 import { getSessions } from './timetableData.js';
+import { createGuestId, GUEST_USER_ID, getGuestCollection, isGuestUser, saveGuestCollection } from './guestData.js';
 
 export function getLocalDateKey(date = new Date()) {
   const year = date.getFullYear();
@@ -22,6 +23,11 @@ function mapCheckin(row) {
 }
 
 export async function getCheckins(userId) {
+  if (isGuestUser(userId)) {
+    return getGuestCollection('checkins')
+      .filter((checkin) => checkin.ownerId === GUEST_USER_ID)
+      .sort((a, b) => b.day.localeCompare(a.day) || b.checkedInAt.localeCompare(a.checkedInAt));
+  }
   const supabase = await getSupabase();
   const { data, error } = await supabase.from('study_checkins')
     .select('id,user_id,session_id,checkin_date,session_duration_minutes,status,extra_hours,checked_in_at')
@@ -35,6 +41,22 @@ export async function getCheckins(userId) {
 export async function addCheckin(userId, sessionId, date = new Date()) {
   const session = (await getSessions(userId)).find((item) => item.id === sessionId);
   if (!session) throw new Error('Choose a valid study session before checking in.');
+  if (isGuestUser(userId)) {
+    const checkins = getGuestCollection('checkins');
+    const checkin = {
+      id: createGuestId(),
+      ownerId: GUEST_USER_ID,
+      sessionId,
+      day: getLocalDateKey(date),
+      duration: session.duration,
+      status: 'full',
+      extraHours: 0,
+      checkedInAt: new Date().toISOString(),
+    };
+    checkins.push(checkin);
+    saveGuestCollection('checkins', checkins);
+    return checkin;
+  }
   const supabase = await getSupabase();
   const { data, error } = await supabase.from('study_checkins').insert({
     user_id: userId,
@@ -54,6 +76,15 @@ export async function updateCheckin(userId, checkinId, changes) {
   if (!Number.isFinite(extraHours) || extraHours < 0 || extraHours > 24) {
     throw new Error('Extra hours must be between 0 and 24.');
   }
+  if (isGuestUser(userId)) {
+    const checkins = getGuestCollection('checkins');
+    const checkin = checkins.find((item) => item.id === checkinId && item.ownerId === GUEST_USER_ID);
+    if (!checkin) throw new Error('This check-in could not be found.');
+    checkin.status = changes.status;
+    checkin.extraHours = extraHours;
+    saveGuestCollection('checkins', checkins);
+    return checkin;
+  }
   const supabase = await getSupabase();
   const { data, error } = await supabase.from('study_checkins')
     .update({ status: changes.status, extra_hours: extraHours })
@@ -67,6 +98,13 @@ export async function updateCheckin(userId, checkinId, changes) {
 }
 
 export async function deleteCheckin(userId, checkinId) {
+  if (isGuestUser(userId)) {
+    const checkins = getGuestCollection('checkins');
+    const remaining = checkins.filter((checkin) => checkin.id !== checkinId || checkin.ownerId !== GUEST_USER_ID);
+    if (remaining.length === checkins.length) throw new Error('This check-in could not be found.');
+    saveGuestCollection('checkins', remaining);
+    return;
+  }
   const supabase = await getSupabase();
   const { data, error } = await supabase.from('study_checkins')
     .delete()
@@ -116,7 +154,9 @@ export function getWeeklyStudyHours(checkins, sessions, weekCount = 8, today = n
 export function getStudyStats(checkins, sessions) {
   const sessionMap = new Map(sessions.map((session) => [session.id, session]));
   const hours = checkins.reduce((total, checkin) => total + getCheckinTotalHours(checkin, sessionMap.get(checkin.sessionId)), 0);
-  const checkedDays = [...new Set(checkins.map((checkin) => checkin.day))].sort().reverse();
+  const checkedDays = [...new Set(checkins
+    .filter((checkin) => getCheckinTotalHours(checkin, sessionMap.get(checkin.sessionId)) > 0)
+    .map((checkin) => checkin.day))].sort().reverse();
   let streak = 0;
   const cursor = new Date();
   cursor.setHours(0, 0, 0, 0);
@@ -126,5 +166,5 @@ export function getStudyStats(checkins, sessions) {
     streak += 1;
     cursor.setDate(cursor.getDate() - 1);
   }
-  return { sessions: checkins.length, hours, streak };
+  return { sessions: checkins.length, days: checkedDays.length, hours, streak };
 }

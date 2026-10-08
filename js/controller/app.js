@@ -12,17 +12,13 @@ import { initializeChart } from './chartController.js';
 import { initializeGoals } from './goalsController.js';
 import { initializeReminders } from './reminderController.js';
 import { initializeLegacyMigration } from './migrationController.js';
+import { GUEST_USER, GUEST_USER_ID } from '../model/guestData.js';
 
 let refreshChart = async () => {};
 let refreshReminders = async () => {};
 
 export async function requireUser() {
-  const user = await getCurrentUser();
-  if (!user) {
-    window.location.replace('login.html');
-    return null;
-  }
-  return user;
+  return await getCurrentUser() || GUEST_USER;
 }
 
 export async function refreshApp(user) {
@@ -68,9 +64,9 @@ function showAppError(error) {
 export async function initializeApp() {
   try {
     const user = await requireUser();
-    if (!user) return;
-    initializeAuth(signOut);
-    initializeLegacyMigration({ user });
+    const isGuest = user.id === GUEST_USER_ID;
+    initializeAuth(isGuest ? null : signOut, user);
+    if (!isGuest) initializeLegacyMigration({ user });
     refreshChart = initializeChart({ user });
     try {
       refreshReminders = await initializeReminders({ user });

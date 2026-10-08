@@ -3,28 +3,27 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f7f7f4">
+  <meta name="theme-color" content="#f8f9fc">
   <title>Timetable — StudyTrack</title>
   <link rel="stylesheet" href="css/style.css">
   <script type="module" src="js/controller/app.js"></script>
 </head>
 <body>
   <div class="app-shell">
-    <aside class="sidebar">
-      <a class="brand" href="index.html"><span class="brand-mark">S</span><span>studytrack</span></a>
-      <div class="sidebar-label">Workspace</div>
+    <header class="site-header">
+      <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">▰</span><span>StudyTrack</span></a>
       <nav class="main-nav" aria-label="Main navigation">
-        <a class="nav-link" href="index.html"><span class="nav-icon">◫</span>Dashboard</a>
-        <a class="nav-link active" href="timetable.html" aria-current="page"><span class="nav-icon">▦</span>Timetable</a>
-        <a class="nav-link" href="history.html"><span class="nav-icon">↺</span>History</a>
+        <a class="nav-link" href="index.html"><span class="nav-icon" aria-hidden="true">⌂</span>Dashboard</a>
+        <a class="nav-link active" href="timetable.html" aria-current="page"><span class="nav-icon" aria-hidden="true">▦</span>Timetable</a>
+        <a class="nav-link" href="history.html"><span class="nav-icon" aria-hidden="true">▥</span>History</a>
       </nav>
-      <div class="sidebar-bottom">
-        <div class="sidebar-note"><span class="note-icon">✳</span><strong>A little progress<br>adds up.</strong><span>Show up for your future self.</span></div>
-        <div class="profile-button"><span class="avatar" data-user-initials>ST</span><span class="profile-copy"><strong data-user-name>Student</strong><small data-user-email></small></span><button class="logout-button" type="button" data-logout>Log out</button></div>
-      </div>
-    </aside>
+      <div class="profile-button"><span class="avatar" data-user-initials>ST</span><span class="profile-copy"><strong data-user-name>Student</strong><small data-user-email></small></span><a class="account-link" data-account-link href="login.html">Sign in</a><button class="logout-button" type="button" data-logout>Log out</button></div>
+    </header>
     <main class="main-content">
-      <header class="topbar"><div class="breadcrumb">Workspace <span>/</span> Timetable</div><a class="topbar-link" href="index.html">← Overview</a></header>
+      <aside class="guest-notice" data-guest-notice hidden>
+        <span>Your plan is saved on this device. <a href="login.html">Sign in or create an account</a> to sync it across devices.</span>
+        <button type="button" data-dismiss-guest-notice aria-label="Dismiss notice">×</button>
+      </aside>
       <section class="welcome-row timetable-welcome">
         <div><p class="eyebrow">MAKE SPACE FOR FOCUS</p><h1>Your timetable <span class="wave">▦</span></h1><p class="welcome-subtitle">A flexible plan for the week ahead. Add sessions as you go.</p></div>
       </section>
@@ -34,7 +33,7 @@
           <div class="form-grid">
             <div class="form-field form-field-wide"><label for="session-title">Session title</label><input id="session-title" name="title" type="text" maxlength="80" placeholder="e.g. Biology revision" required></div>
             <div class="form-field"><label for="session-day">Day</label><select id="session-day" name="day" required></select></div>
-            <div class="form-field"><label for="session-start">Start time</label><input id="session-start" name="startTime" type="time" value="09:00" required></div>
+            <div class="form-field"><label for="session-start">Start time</label><input id="session-start" name="startTime" type="time" value="08:30" required></div>
             <div class="form-field"><label for="session-duration">Duration</label><select id="session-duration" name="duration" required><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60" selected>1 hour</option><option value="90">1 hour 30 minutes</option><option value="120">2 hours</option></select></div>
             <div class="form-field"><label for="session-reminder">Reminder</label><select id="session-reminder" name="reminderMinutes"><option value="0">No reminder</option><option value="5">5 minutes before</option><option value="10" selected>10 minutes before</option><option value="15">15 minutes before</option><option value="30">30 minutes before</option></select></div>
             <div class="form-field"><label for="session-subject">Subject <span class="optional-label">optional</span></label><input id="session-subject" name="subject" type="text" maxlength="50" placeholder="e.g. Biology"></div>

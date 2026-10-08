@@ -1,4 +1,5 @@
 import { getSupabase, throwIfSupabaseError } from './supabase.js';
+import { createGuestId, GUEST_USER_ID, getGuestCollection, isGuestUser, saveGuestCollection } from './guestData.js';
 
 export const WEEKDAYS = Object.freeze(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']);
 
@@ -16,6 +17,11 @@ function mapSession(row) {
 }
 
 export async function getSessions(userId) {
+  if (isGuestUser(userId)) {
+    return getGuestCollection('sessions')
+      .filter((session) => session.ownerId === GUEST_USER_ID)
+      .sort((a, b) => a.day - b.day || a.startTime.localeCompare(b.startTime));
+  }
   const supabase = await getSupabase();
   const { data, error } = await supabase
     .from('study_sessions')
@@ -28,6 +34,19 @@ export async function getSessions(userId) {
 }
 
 export async function addSession(userId, session) {
+  if (isGuestUser(userId)) {
+    const sessions = getGuestCollection('sessions');
+    const savedSession = {
+      ...session,
+      id: createGuestId(),
+      ownerId: GUEST_USER_ID,
+      subject: session.subject || '',
+      reminderMinutes: session.reminderMinutes ?? null,
+    };
+    sessions.push(savedSession);
+    saveGuestCollection('sessions', sessions);
+    return savedSession;
+  }
   const supabase = await getSupabase();
   const { data, error } = await supabase.from('study_sessions').insert({
     user_id: userId,
@@ -43,6 +62,13 @@ export async function addSession(userId, session) {
 }
 
 export async function deleteSession(userId, sessionId) {
+  if (isGuestUser(userId)) {
+    const sessions = getGuestCollection('sessions');
+    const remaining = sessions.filter((session) => session.id !== sessionId || session.ownerId !== GUEST_USER_ID);
+    if (remaining.length === sessions.length) throw new Error('This session could not be found.');
+    saveGuestCollection('sessions', remaining);
+    return;
+  }
   const supabase = await getSupabase();
   const { data, error } = await supabase.from('study_sessions')
     .delete()
