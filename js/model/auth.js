@@ -28,6 +28,9 @@ export async function getCurrentUser() {
 export async function signIn(email, password) {
   const supabase = await getSupabase();
   const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+  if (error?.code === 'invalid_credentials' || error?.message === 'Invalid login credentials') {
+    throw new Error('The email or password does not match an account. If you just created this account, confirm your email. Otherwise, choose “Forgot your password?” to reset it.');
+  }
   throwIfSupabaseError(error, 'Unable to sign in');
   clearLegacyPasswords();
   return mapUser(data.user);
@@ -44,6 +47,9 @@ export async function signUp(name, email, password) {
     },
   });
   throwIfSupabaseError(error, 'Unable to create your account');
+  if (data.user?.identities?.length === 0) {
+    throw new Error('An account already exists for that email. Sign in or choose “Forgot your password?” to reset it.');
+  }
   clearLegacyPasswords();
   return { user: mapUser(data.session?.user), needsEmailConfirmation: !data.session };
 }
