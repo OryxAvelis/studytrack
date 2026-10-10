@@ -4,3 +4,4 @@ Thumbs.db
 !.env.example
 js/model/supabaseConfig.js
 .vercel
+public/
