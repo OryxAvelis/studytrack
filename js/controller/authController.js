@@ -37,6 +37,8 @@ if (document.querySelector('[data-auth-form]')) {
   const message = document.querySelector('[data-auth-message]');
   const nameInput = document.querySelector('#auth-name');
   const nameLabel = document.querySelector('[data-name-label]');
+  const emailInput = document.querySelector('#auth-email');
+  const emailLabel = document.querySelector('[data-email-label]');
   const passwordInput = document.querySelector('#auth-password');
   const heading = document.querySelector('[data-auth-heading]');
   const subtitle = document.querySelector('[data-auth-subtitle]');
@@ -54,6 +56,9 @@ if (document.querySelector('[data-auth-form]')) {
     nameInput.hidden = !isSignup;
     nameLabel.hidden = !isSignup;
     nameInput.required = isSignup;
+    emailInput.hidden = isUpdate;
+    emailLabel.hidden = isUpdate;
+    emailInput.required = !isUpdate;
     passwordInput.hidden = isReset;
     document.querySelector('[data-password-label]').hidden = isReset;
     passwordInput.required = !isReset;
