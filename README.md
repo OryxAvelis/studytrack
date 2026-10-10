@@ -27,9 +27,9 @@ Then open <http://localhost:8000>. Alternatively, use VS Code's Live Server exte
 
 Guest data (timetable, check-ins, goals, and reminder preferences) stays in this browser and is not uploaded. Configure Supabase and sign in if you want account-based cloud sync. Guest data and account data remain separate.
 
-## Deploy to GitHub Pages
+## Deploy to Vercel
 
-Pushing to `main` automatically runs the tests and deploys the static site to GitHub Pages. The workflow excludes the ignored local `js/model/supabaseConfig.js` file, so the deployed site starts in guest mode. To enable account-based sync, configure Supabase and provide its URL and publishable key through a secure deployment process.
+Connect the repository to Vercel and set `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` as Production environment variables. The build generates the ignored `js/model/supabaseConfig.js` from those variables; credentials are not stored in the repository. Vercel automatically builds and deploys changes pushed to the connected branch. Run `npm test` before deployment.
 
 Run the dependency-free model tests with:
 
