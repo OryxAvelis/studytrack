@@ -2,6 +2,18 @@ import { getSupabase, throwIfSupabaseError } from './supabase.js';
 import { createGuestId, GUEST_USER_ID, getGuestCollection, isGuestUser, saveGuestCollection } from './guestData.js';
 
 export const WEEKDAYS = Object.freeze(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']);
+export const DEFAULT_SUBJECTS = Object.freeze([
+  'Arabic Language',
+  'French Language',
+  'English Language',
+  'Mathematics',
+  'Physics & Chemistry',
+  'Life and Earth Sciences',
+  'Islamic Education',
+  'Philosophy',
+  'History & Geography',
+  'Physical Education',
+]);
 
 function mapSession(row) {
   return {

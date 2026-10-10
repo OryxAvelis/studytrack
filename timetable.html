@@ -17,7 +17,7 @@
         <a class="nav-link active" href="timetable.html" aria-current="page"><span class="nav-icon" aria-hidden="true">▦</span>Timetable</a>
         <a class="nav-link" href="history.html"><span class="nav-icon" aria-hidden="true">▥</span>History</a>
       </nav>
-      <div class="profile-button"><span class="avatar" data-user-initials>ST</span><span class="profile-copy"><strong data-user-name>Student</strong><small data-user-email></small></span><a class="account-link" data-account-link href="login.html">Sign in</a><button class="logout-button" type="button" data-logout>Log out</button></div>
+      <div class="profile-button"><button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to dark theme" aria-pressed="false" title="Switch to dark theme">☾</button><span class="avatar" data-user-initials>ST</span><span class="profile-copy"><strong data-user-name>Student</strong><small data-user-email></small></span><a class="account-link" data-account-link href="login.html">Sign in</a><button class="logout-button" type="button" data-logout>Log out</button></div>
     </header>
     <main class="main-content">
       <aside class="guest-notice" data-guest-notice hidden>
@@ -36,10 +36,51 @@
             <div class="form-field"><label for="session-start">Start time</label><input id="session-start" name="startTime" type="time" value="08:30" required></div>
             <div class="form-field"><label for="session-duration">Duration</label><select id="session-duration" name="duration" required><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60" selected>1 hour</option><option value="90">1 hour 30 minutes</option><option value="120">2 hours</option></select></div>
             <div class="form-field"><label for="session-reminder">Reminder</label><select id="session-reminder" name="reminderMinutes"><option value="0">No reminder</option><option value="5">5 minutes before</option><option value="10" selected>10 minutes before</option><option value="15">15 minutes before</option><option value="30">30 minutes before</option></select></div>
-            <div class="form-field"><label for="session-subject">Subject <span class="optional-label">optional</span></label><input id="session-subject" name="subject" type="text" maxlength="50" placeholder="e.g. Biology"></div>
+            <div class="form-field"><label for="session-subject">Subject</label><input id="session-subject" name="subject" type="text" maxlength="50" placeholder="e.g. Biology" required></div>
           </div>
           <div class="form-actions"><p class="form-message" data-session-message aria-live="polite"></p><button class="button button-quiet" type="button" data-cancel-session>Cancel</button><button class="button button-primary" type="submit">Save session</button></div>
         </form>
+        <dialog class="quick-session-dialog" data-quick-session-dialog aria-labelledby="quick-session-heading">
+          <form data-quick-session-form>
+            <p class="eyebrow">ADD TO YOUR TIMETABLE</p>
+            <h2 id="quick-session-heading">Plan a study session</h2>
+            <p class="quick-session-time" data-quick-session-time></p>
+            <div class="form-field">
+              <label for="quick-session-subject">Subject</label>
+              <select id="quick-session-subject" name="subjectChoice" required></select>
+            </div>
+            <div class="form-field" data-new-subject-field hidden>
+              <label for="quick-session-new-subject">New subject</label>
+              <input id="quick-session-new-subject" name="newSubject" type="text" maxlength="50" placeholder="e.g. Biology">
+            </div>
+            <div class="form-field">
+              <label for="quick-session-duration">Duration</label>
+              <select id="quick-session-duration" name="durationHours" required>
+                <option value="0.5">30 minutes</option>
+                <option value="1" selected>1 hour</option>
+                <option value="1.5">1.5 hours</option>
+                <option value="2">2 hours</option>
+                <option value="2.5">2.5 hours</option>
+                <option value="3">3 hours</option>
+                <option value="3.5">3.5 hours</option>
+                <option value="4">4 hours</option>
+                <option value="4.5">4.5 hours</option>
+                <option value="5">5 hours</option>
+                <option value="5.5">5.5 hours</option>
+                <option value="6">6 hours</option>
+                <option value="6.5">6.5 hours</option>
+                <option value="7">7 hours</option>
+                <option value="7.5">7.5 hours</option>
+                <option value="8">8 hours</option>
+              </select>
+            </div>
+            <p class="form-message" data-quick-session-message aria-live="polite"></p>
+            <div class="form-actions">
+              <button class="button button-quiet" type="button" data-close-quick-session>Cancel</button>
+              <button class="button button-primary" type="submit">Save session</button>
+            </div>
+          </form>
+        </dialog>
         <div class="week-grid" data-week-grid></div>
       </section>
       <footer class="page-footer">Made for the days you're showing up. <span>✳</span></footer>

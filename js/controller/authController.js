@@ -1,5 +1,8 @@
 import { getCurrentUser, sendPasswordReset, signIn, signOut, signUp, updatePassword } from '../model/auth.js';
 import { GUEST_USER_ID } from '../model/guestData.js';
+import { initializeTheme } from './themeController.js';
+
+if (document.querySelector('[data-auth-form]')) initializeTheme();
 
 export function initializeAuth(onSignOut = signOut, user = null) {
   const isGuest = !user || user.id === GUEST_USER_ID;

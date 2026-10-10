@@ -13,9 +13,12 @@ import { initializeGoals } from './goalsController.js';
 import { initializeReminders } from './reminderController.js';
 import { initializeLegacyMigration } from './migrationController.js';
 import { GUEST_USER, GUEST_USER_ID } from '../model/guestData.js';
+import { initializeTheme } from './themeController.js';
 
 let refreshChart = async () => {};
 let refreshReminders = async () => {};
+
+initializeTheme();
 
 export async function requireUser() {
   return await getCurrentUser() || GUEST_USER;

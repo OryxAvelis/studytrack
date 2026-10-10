@@ -27,6 +27,10 @@ Then open <http://localhost:8000>. Alternatively, use VS Code's Live Server exte
 
 Guest data (timetable, check-ins, goals, and reminder preferences) stays in this browser and is not uploaded. Configure Supabase and sign in if you want account-based cloud sync. Guest data and account data remain separate.
 
+## Deploy to GitHub Pages
+
+Pushing to `main` automatically runs the tests and deploys the static site to GitHub Pages. The workflow excludes the ignored local `js/model/supabaseConfig.js` file, so the deployed site starts in guest mode. To enable account-based sync, configure Supabase and provide its URL and publishable key through a secure deployment process.
+
 Run the dependency-free model tests with:
 
 ```sh
@@ -37,8 +41,9 @@ npm test
 
 - Supabase email/password sign-up and sign-in, email confirmation, and password recovery
 - Free guest mode with locally saved timetable, check-ins, goals, and reminder preferences; no account is required
+- Persistent light/dark theme toggle available across all pages
 - Cloud-synced timetable, check-ins, goals, and reminder preferences
-- Left-to-right English timetable with Monday–Saturday weekday rows and ten hourly slots from 08:00–09:00 through 17:00–18:00
+- Left-to-right English timetable with Monday–Sunday rows, clickable empty slots, default school subjects, and ten hourly slots from 08:00–09:00 through 17:00–18:00; longer sessions reserve and show their following slots
 - One-time, user-confirmed import of the previous browser demo's timetable and check-ins; demo passwords are not imported
 - Full, half, or absent check-in statuses; calculated and extra study hours
 - Study history with edit/delete and CSV export

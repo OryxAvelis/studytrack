@@ -1,5 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { DEFAULT_SUBJECTS } from '../js/model/timetableData.js';
 import { getCalculatedHours, getCheckinTotalHours, getStudyStats, getWeeklyStudyHours } from '../js/model/checkinData.js';
 import { initializeReminders } from '../js/controller/reminderController.js';
 import { renderScheduleTable } from '../js/view/scheduleTable.js';
@@ -47,13 +49,13 @@ test('weekly study hours rejects invalid ranges', () => {
   assert.throws(() => getWeeklyStudyHours([], [], 1.5), /positive whole number/);
 });
 
-test('Timetable uses left-to-right English Monday-to-Saturday rows and school-hour columns', () => {
+test('Timetable uses left-to-right English Monday-to-Sunday rows and school-hour columns', () => {
   const table = renderScheduleTable([], { today: new Date(2026, 9, 8) });
   assert.match(table, /dir="ltr"/);
   assert.match(table, />Day</);
   assert.match(table, /Monday/);
   assert.match(table, /Saturday/);
-  assert.doesNotMatch(table, /Sunday/);
+  assert.match(table, /Sunday/);
   assert.doesNotMatch(table, /الإثنين/);
   assert.equal((table.match(/class="schedule-time-heading"/g) || []).length, 10);
   assert.match(table, /08:00–09:00/);
@@ -63,7 +65,7 @@ test('Timetable uses left-to-right English Monday-to-Saturday rows and school-ho
   assert.ok(table.indexOf('Day</th>') < table.indexOf('08:00–09:00'));
 });
 
-test('Timetable includes Sunday only when scheduled and escapes session text', () => {
+test('Timetable includes Sunday and escapes session text', () => {
   const table = renderScheduleTable([{
     id: 'session-1',
     ownerId: 'user-1',
@@ -78,6 +80,59 @@ test('Timetable includes Sunday only when scheduled and escapes session text', (
   assert.doesNotMatch(table, /<Revision>/);
   assert.match(table, /&lt;Revision&gt;/);
   assert.match(table, /data-delete-session="session-1"/);
+});
+
+test('interactive timetable renders each empty hour as a day-and-time subject picker trigger', () => {
+  const table = renderScheduleTable([], { interactive: true });
+  assert.match(table, /data-add-session-day="6" data-add-session-time="08:00" aria-label="Add session on Sunday at 08:00"/);
+  assert.equal((table.match(/class="schedule-empty-button"/g) || []).length, 70);
+});
+
+test('timetable offers subject selection and half-hour durations up to eight hours', () => {
+  const html = readFileSync(new URL('../timetable.html', import.meta.url), 'utf8');
+  assert.match(html, /data-quick-session-dialog/);
+  assert.match(html, /name="subjectChoice"/);
+  assert.match(html, /name="durationHours"/);
+  assert.match(html, /<option value="0\.5">30 minutes<\/option>/);
+  assert.match(html, /<option value="8">8 hours<\/option>/);
+});
+
+test('timetable has the requested default subjects', () => {
+  assert.deepEqual(DEFAULT_SUBJECTS, [
+    'Arabic Language',
+    'French Language',
+    'English Language',
+    'Mathematics',
+    'Physics & Chemistry',
+    'Life and Earth Sciences',
+    'Islamic Education',
+    'Philosophy',
+    'History & Geography',
+    'Physical Education',
+  ]);
+});
+
+test('a two-hour session continues into the following slot and reserves it', () => {
+  const table = renderScheduleTable([{
+    id: 'two-hour-session',
+    ownerId: 'user-1',
+    title: 'Mathematics study session',
+    subject: 'Mathematics',
+    day: 0,
+    startTime: '08:00',
+    duration: 120,
+  }], { ownerId: 'user-1', interactive: true });
+  const mondayRow = table.slice(table.indexOf('<tbody>')).split('</tr>')[0];
+  assert.match(mondayRow, /08:00 · 120 min/);
+  assert.match(mondayRow, /Mathematics<\/strong>\s*<span>Continues from 08:00<\/span>/);
+  assert.doesNotMatch(mondayRow, /data-add-session-day="0" data-add-session-time="09:00"/);
+  assert.match(mondayRow, /data-add-session-day="0" data-add-session-time="10:00"/);
+});
+
+test('dashboard timetable preview keeps empty slots non-interactive', () => {
+  const table = renderScheduleTable([]);
+  assert.doesNotMatch(table, /data-add-session-day/);
+  assert.match(table, /class="schedule-empty"/);
 });
 
 test('Timetable groups half-hour sessions under the correct hour and keeps exact start time', () => {

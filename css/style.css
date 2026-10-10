@@ -477,6 +477,23 @@ body { color: var(--ink); background: #f7f8fc; }
 .page-footer > span:first-child { color: var(--purple); font-weight: 700; }
 .timetable-welcome { padding-top: 34px; }
 .timetable-panel { padding: 19px; }
+.theme-toggle {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid #e8eaf1;
+  border-radius: 9px;
+  color: #6550a6;
+  background: #f7f5ff;
+  font-size: 17px;
+  cursor: pointer;
+}
+.theme-toggle:hover { border-color: #cfc6f5; background: #f0eaff; }
+.auth-form-wrap { position: relative; }
+.auth-theme-toggle { position: absolute; top: 22px; right: 24px; }
 .timetable-panel > .week-grid { display: block; width: 100%; min-width: 0; }
 .day-column { border-color: #eceff6; border-radius: 8px; background: #fff; }
 .day-column.is-today { border-color: #c7b9ff; background: #faf9ff; }
@@ -514,8 +531,20 @@ body { color: var(--ink); background: #f7f8fc; }
 .morocco-schedule-table td:nth-child(4n + 4) .schedule-entry { color: #9d671f; background: #fff2df; }
 .schedule-entry strong { overflow: hidden; font-size: 9px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
 .schedule-entry > span { color: inherit; font-size: 8px; opacity: .78; }
+.schedule-continuation { display: grid; min-height: 43px; align-content: center; gap: 3px; padding: 7px 8px; border-left: 2px solid #8c6af0; color: #6341c9; background: #f7f4ff; text-align: left; }
+.schedule-continuation strong { overflow: hidden; font-size: 9px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.schedule-continuation > span { font-size: 8px; opacity: .78; }
 .schedule-empty { display: block; width: 100%; height: 30px; border-radius: 5px; background: #f8f9fc; }
-.schedule-table-scroll.is-compact { max-height: 285px; margin-top: 10px; border-color: #edf0f6; }
+.schedule-empty-button { display: grid; width: 100%; min-height: 43px; place-items: center; padding: 0; border: 0; border-radius: 5px; background: transparent; cursor: pointer; }
+.schedule-empty-button:hover .schedule-empty { background: #f0eaff; }
+.schedule-empty-button:focus-visible { outline: 2px solid var(--purple); outline-offset: 2px; }
+.quick-session-dialog { width: min(420px, calc(100% - 32px)); max-width: none; padding: 22px; border: 1px solid #e8ebf2; border-radius: 12px; color: var(--ink); background: #fff; box-shadow: 0 20px 60px #18203a33; }
+.quick-session-dialog::backdrop { background: #18203a66; }
+.quick-session-dialog h2 { margin: 0 0 8px; font-size: 20px; }
+.quick-session-dialog .form-field { margin-top: 14px; }
+.quick-session-time { margin: 0; color: var(--muted); font-size: 13px; }
+.quick-session-dialog .form-actions { justify-content: flex-end; margin-top: 18px; }
+.schedule-table-scroll.is-compact { max-height: 380px; margin-top: 10px; overflow-y: auto; border-color: #edf0f6; }
 .schedule-table-scroll.is-compact .morocco-schedule-table th,
 .schedule-table-scroll.is-compact .morocco-schedule-table td { min-width: 72px; height: 48px; padding: 4px; }
 .schedule-table-scroll.is-compact .morocco-schedule-table thead th { height: 35px; font-size: 8px; }
@@ -525,7 +554,11 @@ body { color: var(--ink); background: #f7f8fc; }
 .schedule-table-scroll.is-compact .schedule-entry { min-height: 33px; padding: 5px; }
 .schedule-table-scroll.is-compact .schedule-entry strong { font-size: 8px; }
 .schedule-table-scroll.is-compact .schedule-entry > span { font-size: 7px; }
+.schedule-table-scroll.is-compact .schedule-continuation { min-height: 33px; padding: 5px; }
+.schedule-table-scroll.is-compact .schedule-continuation strong { font-size: 8px; }
+.schedule-table-scroll.is-compact .schedule-continuation > span { font-size: 7px; }
 .schedule-table-scroll.is-compact .schedule-empty { height: 24px; }
+.schedule-table-scroll.is-compact .schedule-empty-button { min-height: 33px; }
 .auth-page { background: #f7f8fc; }
 .auth-intro { background: #5f39dd; }
 .auth-intro .brand-mark { color: #5f39dd; background: #fff; }
@@ -611,3 +644,112 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .stat-value { font-size: 18px; }
   .dashboard-content .panel { padding: 12px; }
 }
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --ink: #e9eaf4;
+  --muted: #a0a8bd;
+  --line: #363b50;
+  --paper: #151824;
+  --white: #202435;
+  --green: #35c99b;
+  --green-dark: #54d6aa;
+  --green-soft: #203b38;
+  --lilac: #332b4a;
+  --peach: #44352e;
+  --purple: #aa91ff;
+  --purple-dark: #c0adff;
+}
+html[data-theme="dark"] body { color: var(--ink); background: var(--paper); }
+html[data-theme="dark"] .site-header {
+  border-color: #303549;
+  background: rgb(26 29 43 / 95%);
+}
+html[data-theme="dark"] .brand,
+html[data-theme="dark"] .brand > span:last-child,
+html[data-theme="dark"] .dashboard-hero h1,
+html[data-theme="dark"] .stat-value,
+html[data-theme="dark"] .stat-value small,
+html[data-theme="dark"] .section-title h2,
+html[data-theme="dark"] .profile-copy strong { color: var(--ink); }
+html[data-theme="dark"] .nav-link { color: #b0b5c8; }
+html[data-theme="dark"] .nav-link:hover,
+html[data-theme="dark"] .nav-link.active { color: var(--purple); background: #302a45; }
+html[data-theme="dark"] .panel,
+html[data-theme="dark"] .stat-card,
+html[data-theme="dark"] .auth-form-wrap {
+  border-color: #34394d;
+  background: #202435;
+}
+html[data-theme="dark"] .panel,
+html[data-theme="dark"] .stat-card { box-shadow: 0 3px 12px #00000020; }
+html[data-theme="dark"] .dashboard-hero .welcome-subtitle,
+html[data-theme="dark"] .checkin-copy,
+html[data-theme="dark"] .welcome-subtitle { color: #aab2c7; }
+html[data-theme="dark"] .hero-checkin select,
+html[data-theme="dark"] .checkin-form select,
+html[data-theme="dark"] .form-field input,
+html[data-theme="dark"] .form-field select,
+html[data-theme="dark"] .auth-card input,
+html[data-theme="dark"] .goal-field input,
+html[data-theme="dark"] .history-input {
+  border-color: #454b62;
+  color: #e6e8f2;
+  background: #191d2b;
+}
+html[data-theme="dark"] .checkin-form label,
+html[data-theme="dark"] .auth-card label,
+html[data-theme="dark"] .form-field label,
+html[data-theme="dark"] .goal-field label { color: #c3c8d8; }
+html[data-theme="dark"] .session-form { border-color: #383e53; background: #1a1e2d; }
+html[data-theme="dark"] .today-session,
+html[data-theme="dark"] .recent-row,
+html[data-theme="dark"] .goal-row { border-color: #363b50; }
+html[data-theme="dark"] .session-details strong,
+html[data-theme="dark"] .goal-copy strong { color: #e5e7f1; }
+html[data-theme="dark"] .session-details span,
+html[data-theme="dark"] .session-duration,
+html[data-theme="dark"] .goal-copy > span,
+html[data-theme="dark"] .goal-empty { color: #a0a8bd; }
+html[data-theme="dark"] .week-preview-table th,
+html[data-theme="dark"] .week-preview-table td,
+html[data-theme="dark"] .history-table td { border-color: #383e53; }
+html[data-theme="dark"] .week-preview-table thead th,
+html[data-theme="dark"] .week-preview-table tbody th,
+html[data-theme="dark"] .history-table td { color: #d1d5e4; }
+html[data-theme="dark"] .week-preview-table thead small,
+html[data-theme="dark"] .week-preview-table thead th:first-child,
+html[data-theme="dark"] .history-table th { color: #a0a8bd; }
+html[data-theme="dark"] .heatmap-cell,
+html[data-theme="dark"] .heatmap-legend i { background: #303549; }
+html[data-theme="dark"] .heatmap-cell.level-1,
+html[data-theme="dark"] .heatmap-legend .level-1 { background: #3b584f; }
+html[data-theme="dark"] .heatmap-cell.level-2,
+html[data-theme="dark"] .heatmap-legend .level-2 { background: #36745e; }
+html[data-theme="dark"] .heatmap-cell.level-3,
+html[data-theme="dark"] .heatmap-legend .level-3 { background: #329b76; }
+html[data-theme="dark"] .heatmap-cell.level-4,
+html[data-theme="dark"] .heatmap-legend .level-4 { background: #35c99b; }
+html[data-theme="dark"] .day-column { border-color: #383e53; background: #202435; }
+html[data-theme="dark"] .day-column.is-today { border-color: #645492; background: #29253a; }
+html[data-theme="dark"] .schedule-table-scroll { border-color: #383e53; background: #202435; }
+html[data-theme="dark"] .morocco-schedule-table th,
+html[data-theme="dark"] .morocco-schedule-table td { border-color: #383e53; }
+html[data-theme="dark"] .morocco-schedule-table thead th,
+html[data-theme="dark"] .morocco-schedule-table thead .schedule-day-heading { color: #c3c8d8; background: #24293a; }
+html[data-theme="dark"] .morocco-schedule-table .schedule-day-name,
+html[data-theme="dark"] .morocco-schedule-table td,
+html[data-theme="dark"] .morocco-schedule-table tbody tr:nth-child(even) td { color: #e5e7f1; background: #202435; }
+html[data-theme="dark"] .morocco-schedule-table tbody tr.is-today .schedule-day-name { color: #c0adff; background: #302a45; }
+html[data-theme="dark"] .schedule-empty { background: #2b3042; }
+html[data-theme="dark"] .auth-card h2 { color: #e9eaf4; }
+html[data-theme="dark"] .auth-subtitle,
+html[data-theme="dark"] .back-link { color: #aab2c7; }
+html[data-theme="dark"] .auth-tabs { background: #191d2b; }
+html[data-theme="dark"] .auth-tab { color: #aab2c7; }
+html[data-theme="dark"] .auth-tab.active { color: #e9eaf4; background: #303549; }
+html[data-theme="dark"] .local-mode-note { color: #a0a8bd; }
+html[data-theme="dark"] .account-link { border-color: #4a416b; color: #c0adff; background: #302a45; }
+html[data-theme="dark"] .guest-notice { border-color: #4a416b; color: #d1c9ef; background: #29253a; }
+html[data-theme="dark"] .theme-toggle { border-color: #454b62; color: #f5d887; background: #292e40; }
+html[data-theme="dark"] .theme-toggle:hover { border-color: #6a7190; background: #343a50; }
